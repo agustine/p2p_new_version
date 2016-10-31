@@ -1,0 +1,137 @@
+@charset "UTF-8";
+
+@import "vars";
+
+@mixin clearfix() {
+    & {
+        *zoom: 1;
+    }
+    &:before,
+    &:after {
+        content: "";
+        display: table;
+    }
+    &:after {
+        clear: both;
+    }
+}
+
+@mixin text-truncate {
+    overflow: hidden;
+    text-overflow: ellipsis;
+    white-space: nowrap;
+}
+
+@mixin m-ellipsis($line: 2) {
+    white-space: normal;
+    word-wrap: break-word;
+    word-spacing: normal;
+    word-break: break-all;
+    overflow: hidden;
+    text-overflow: ellipsis;
+    display: -webkit-box;
+    -webkit-line-clamp: $line;
+    -webkit-box-orient: vertical;
+}
+
+@mixin abs-pos($top: auto, $right: auto, $bottom: auto, $left: auto) {
+    top: $top;
+    right: $right;
+    bottom: $bottom;
+    left: $left;
+    position: absolute;
+}
+
+@mixin center-block {
+    display: block;
+    margin-left: auto;
+    margin-right: auto;
+}
+
+@mixin abs-center {
+    margin: auto;
+
+    @include abs-pos(0, 0, 0, 0);
+}
+
+@mixin text-replacement() {
+    border: 0;
+    color: transparent;
+    font: 0/0 a;
+    text-shadow: none;
+}
+
+@mixin size($width, $height: $width) {
+    width: $width;
+    height: $height;
+}
+
+@mixin line-1px($position: top, $style: solid, $color: $line_color) {
+    @if $position == top {
+        border-top: 1px $style $color;
+    } @else {
+        border-bottom: 1px $style $color;
+    }
+    //transform: scaleY(0.5);
+    @include size(100%, 0);
+}
+
+@mixin line-1px-v($position: left, $style: solid, $color: $line_color) {
+    border-right: 1px $style $color;
+    //transform: scaleX(0.5);
+    @include size(0, 100%);
+}
+
+@mixin title-starter($color: $contrast_color) {
+    font-size: $title_font_size;
+    line-height: px(52);
+
+    &:before {
+        content: "";
+
+        display: inline-block;
+        margin-right: px(10);
+        border-radius: px(10);
+        transform: translateY(px(3));
+
+        background-color: $color;
+
+        @include size(px(6), px(30));
+    }
+}
+
+@mixin title-starter-dot($color: $contrast_color) {
+    font-size: $title_font_size;
+
+    &:before {
+        content: "";
+
+        display: inline-block;
+        margin-right: px(10);
+        border-radius: 100%;
+
+        background-color: $color;
+
+        @include size(px(10));
+    }
+}
+
+@mixin hint-box($arrow-right: px(30)){
+    position: relative;
+    margin-top: px(20);
+    background-color: $bg_intro;
+    border: 1px dashed $main_color;
+    border-radius: px(10);
+    &:after {
+        content: "";
+        background-color: $bg_intro;
+
+        border-top: 1px dashed $main_color;
+        border-right: 1px dashed $main_color;
+
+        transform-origin: 0 0;
+        transform: rotate(-45deg);
+        @include abs-pos(0, $arrow-right, auto, auto);
+        @include size(px2x(10), px2x(10));
+    }
+}

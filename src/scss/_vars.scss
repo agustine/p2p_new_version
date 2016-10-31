@@ -1,0 +1,86 @@
+@charset "UTF-8";
+
+// rem 换算
+$design_width: 750;
+$rem_length: 100;// $design_width / 10;
+
+@function px($px) {
+    @return $px / $rem_length + rem;
+}
+@function px2x($px) {
+    @return $px * 2 / $rem_length + rem;
+}
+
+@function pxImage($px) {
+    @return ($px / $rem_length) * 2 / 3 + rem;
+}
+@function px2xImage($px) {
+    @return ($px * 2 / $rem_length) * 2 / 3 + rem;
+}
+
+// 颜色
+$main_color: #2F3852;
+
+$contrast_color: #FF8200;
+$contrast_color_2: #FF9600;
+
+$sub_color: #4687F0;
+
+$font_title_color: #313233;
+$font_color: #646566;
+$font_week_color: #979899;
+$font_error_color: #FF5050;
+
+$bg_color: #EEEFF0;
+$bg_btn_week: #9E9FA0;
+$bg_btn_disabled: #DCE1F0;
+$bg_btn_active: #232D4B;
+$bg_error: #FFFAF0;
+$bg_tip: #FF6464;
+$bg_input: #F8F9FA;
+
+$mask_color: rgba(0, 0, 0, 0.6);
+
+$line_color: #E9EAEB;
+$line_input: #323F65;
+
+// 字体大小
+$font_size_header: px(36);
+$font_size_header_2: px(34);
+$font_size_title: px(32);
+$font_size_title_2: px(30);
+$font_size_common: px(28);
+$font_size_common_2: px(26);
+$font_size_sub: px(24);
+$font_size_sub_2: px(22);
+$font_size_min: px(20);
+
+// 字体
+//$font: "microsoft yahei", Arial, Verdana, "\5b8b\4f53";
+$font: "Helvetica Neue", Helvetica, STHeiTi, sans-serif;
+
+// 通用组件尺寸
+$common_padding_h: px(24);//30 / $rem_length + rem;
+$spliter_height_v: px(16);//10 / $rem_length + rem;
+// $header_height: px(88);// 88 / $rem_length + rem;
+// $footer_height: px(99);//98 / $rem_length + rem;
+//
+// $dialog_width: px(600);//600 / $rem_length + rem;
+// $button_height: px(80);//80 / $rem_length + rem;
+
+$line_hight_common: 1.7;
+$spliter_p: px(40);
+
+$button_width_super: px(702);
+$button_width_big: px(654);
+$button_width_common: px(430);
+$button_width_small: px(260);
+$button_width_min: px(160);
+$button_height: px(88);
+$button_height_min: px(64);
+
+// z-index 层级
+$z_header: 2100;
+$z_footer: 2100;
+$z_mask: 11000;
+$z_page: 0;
