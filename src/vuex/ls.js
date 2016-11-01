@@ -14,7 +14,6 @@ export default function ls(key, config) {
   return {
     get() {
       let state;
-      console.log(deserialize(provider.getItem(key)));
       try {
         const {
           value,
@@ -31,7 +30,6 @@ export default function ls(key, config) {
     },
     set(value) {
       try {
-        console.log(value, 333);
         provider.setItem(key, serialize({
           value: serialize(value),
           expires: dataExpires ? dataExpires + new Date().getTime() : dataExpires,

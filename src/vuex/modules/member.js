@@ -16,7 +16,7 @@ import * as vars from '../../app/vars';
 const application = 'LiCai';
 const deviceKind = 'Mobile';
 
-const localSession = ls('LOCAL_KEY_SESSION_3');
+const localSession = ls('LOCAL_KEY_SESSION_11');
 
 const state = {
   sessionId: '', // 联连的用户token（sessionId）
@@ -77,36 +77,46 @@ const actions = {
         channel,
       },
     };
+    return new Promise((resolve, reject) => {
+      async function request() {
+        try {
+          const res = await memberApi.post('Members/SignedIn', {
+            params: requestBody,
+          });
+          const sessionId = res.data.sessionId;
+          commit(UPDATE_SESSION_ID, sessionId);
+          //   console.log('in', sessionId);
+          localSession.set(sessionId);
 
-    return new Promise((resolve) => {
-      memberApi.post('Members/SignedIn', {
-        params: requestBody,
-        callbacks: {
-          200: function success(res) {
-            const sessionId = res.data.sessionId;
-            commit(UPDATE_SESSION_ID, sessionId);
-
-            const storage = {
-              sessionId,
-            };
-            localSession.set(storage);
-
-            resolve();
-          },
-        },
-      });
+          resolve();
+        } catch (err) {
+          reject(err);
+        }
+      }
+      request();
     });
+    // return new Promise((resolve) => {
+    //   memberApi.post('Members/SignedIn', {
+    //     params: requestBody,
+    //     callbacks: {
+    //       200: function success(res) {
+    //
+    //       },
+    //     },
+    //   });
+    // });
   },
 
   initMember({
     commit,
     dispatch,
   }) {
-    const storage = localSession.get();
+    const sessionId = localSession.get();
 
     // 从本地存储
-    if (storage && storage.sessionId) {
-      commit(UPDATE_SESSION_ID, storage.sessionId);
+    if (sessionId && typeof sessionId === 'string') {
+      commit(UPDATE_SESSION_ID, sessionId);
+      //   console.log('out', sessionId);
       return new Promise((resolve) => {
         resolve();
       });
@@ -139,24 +149,45 @@ const actions = {
       },
     };
     return new Promise((resolve) => {
-      memberApi.post('Members/SignedIn', {
-        params: requestBody,
-        callbacks: {
-          200: function success(res) {
-            sessionId = res.data.sessionId;
-            commit(UPDATE_SESSION_ID, sessionId);
+      async function request() {
+        try {
+          const res = await memberApi.post('Members/SignedIn', {
+            params: requestBody,
+          });
+          sessionId = res.data.sessionId;
+          commit(UPDATE_SESSION_ID, sessionId);
+          //   console.log('in', sessionId);
+          localSession.set(sessionId);
 
-            const storage = {
-              sessionId,
-            };
-            localSession.set(storage);
-          },
-          412: function unknowSession() {
+          resolve();
+        } catch (err) {
+          if (err.errorCode === 412) {
             dispatch('anonymousSignIn').then(resolve);
-          },
-        },
-      });
+          }
+        }
+      }
+      request();
     });
+
+    // return new Promise((resolve) => {
+    //   memberApi.post('Members/SignedIn', {
+    //     params: requestBody,
+    //     callbacks: {
+    //       200: function success(res) {
+    //         sessionId = res.data.sessionId;
+    //         commit(UPDATE_SESSION_ID, sessionId);
+    //
+    //         const storage = {
+    //           sessionId,
+    //         };
+    //         localSession.set(storage);
+    //       },
+    //       412: function unknowSession() {
+    //         dispatch('anonymousSignIn').then(resolve);
+    //       },
+    //     },
+    //   });
+    // });
   },
 };
 

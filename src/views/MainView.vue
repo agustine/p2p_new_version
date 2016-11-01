@@ -50,8 +50,6 @@ export default {
         console.log('result', res);
       } catch (err) {
         console.log('err', err);
-      } finally {
-        console.log('finally');
       }
     }
     getData();

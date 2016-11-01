@@ -42,24 +42,23 @@ const getters = {
 };
 
 const actions = {
-  loadAdData({
+  async loadAdData({
     commit,
   }) {
-    commonApi.get('AdGroups', {
-      params: {
-        application: 'LiCai',
-        channel: 'LianLian.Hybrid',
-        version: '1.0.0',
-        code: 'Home',
-      },
-      callbacks: {
-        200: function success(res) {
-          commit(RECEIVE_INDEX_ADS, res.data.items);
-        },
-      },
-      //   beforeSend: function beforeSend() {},
-      //   complete: function complete() {},
-    });
+    const requestBody = {
+      application: 'LiCai',
+      channel: 'LianLian.Hybrid',
+      version: '1.0.0',
+      code: 'Home',
+    };
+    try {
+      const res = await commonApi.get('AdGroups', {
+        params: requestBody,
+      });
+      commit(RECEIVE_INDEX_ADS, res.data.items);
+    } catch (err) {
+      //   console.log(err);
+    }
   },
 };
 

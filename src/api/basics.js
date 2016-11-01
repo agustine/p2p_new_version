@@ -2,12 +2,23 @@ import axios from 'axios';
 import Url from 'browser-url';
 import configs from '../configs';
 import * as vars from '../app/vars';
+import {
+  ERROR_CODE_UNKNOW,
+  AppError,
+} from '../classes';
 
 const cunstructUrl = Symbol('cunstructUrl');
 const cunstructUrlWithSession = Symbol('cunstructUrlWithSession');
-const cunstructParams = Symbol('cunstructParams');
-const success = Symbol('success');
-const httpError = Symbol('httpError');
+const request = Symbol('request');
+
+function cunstructParams(params) {
+  const sessionId = vars.getSessionId();
+  const result = params || {};
+  if (sessionId) {
+    result.sessionId = sessionId;
+  }
+  return result;
+}
 
 class BasicsApi {
   constructor(apiRoot, timeout) {
@@ -27,106 +38,89 @@ class BasicsApi {
   [cunstructUrlWithSession](action) {
     const sessionId = vars.getSessionId();
     const url = new Url(this[cunstructUrl](action));
-    url.addQuery('sessionId', sessionId);
+    if (sessionId) {
+      url.addQuery('sessionId', sessionId);
+    }
     return url.format();
   }
 
-  static[cunstructParams](params) {
-    const sessionId = vars.getSessionId();
-    const result = params || {};
-    if (sessionId) {
-      result.sessionId = sessionId;
-    }
-    return result;
-  }
+  [request](apiName, method, options) {
+    const thisObj = this;
+    return new Promise((resolve, reject) => {
+      async function requestProcess() {
+        let res;
+        try {
+          if (['get', 'delete'].includes(method.toLowerCase())) {
+            res = await axios({
+              method,
+              url: thisObj[cunstructUrl](apiName),
+              params: cunstructParams(options.params),
+              timeout: thisObj.timeout,
+            });
+          } else {
+            res = await axios({
+              method,
+              url: thisObj[cunstructUrl](apiName),
+              data: JSON.stringify(cunstructParams(options.params)),
+              timeout: thisObj.timeout,
+              headers: {
+                'Content-Type': 'application/json',
+              },
+            });
+          }
 
-  static[success](res, options) {
-    const code = res.StatusCode === undefined ? res.statusCode : res.StatusCode;
-    if (code === 402 || code === 401) {
-      // 重新获取session
-      return;
-    }
+          res = res.data;
+          // 获取返回状态
+          const code = res.StatusCode === undefined ? res.statusCode : res.StatusCode;
+          // 请求成功返回
+          if (code === 200) {
+            resolve(res);
+            return;
+          }
 
-    if (code === 403) {
-      // 状态重置为未登录
-      // return;
-    }
+          // session过期或者失效
+          if (code === 402 || code === 401) {
+            await vars.getStore().dispatch('renew');
+            request();
+            return;
+          }
 
-    if (code === 405) {
-      // 服务端请求超时
-      // return;
-    }
+          // 用户未登录
+          if (code === 403) {
+            vars.getStore().commit('LOGOUT_USER');
+            reject(new AppError('need login...', code));
+            return;
+          }
 
-    if (code === 408) {
-      // 账户被锁定
-      // return;
-    }
+          // 服务端超时，服务端在向其他服务（例如：账户中心）请求数据时超时
+          if (code === 405) {
+            reject(new AppError('server side timeout', code));
+            return;
+          }
 
-    if (options.callbacks && options.callbacks[code.toString()]) {
-      const callback = options.callbacks[code.toString()];
-      if (typeof callback === 'function') {
-        callback(res);
+          // 账户被锁定
+          if (code === 408) {
+            reject(new AppError('locked', code));
+            return;
+          }
+
+          reject(new AppError(res.message || 'common error', code));
+          return;
+        } catch (err) {
+          reject(new AppError(err.message, ERROR_CODE_UNKNOW));
+        }
       }
-    }
 
-    if (options.complete) {
-      options.complete(res);
-    }
-  }
-
-  static[httpError]() {
-
+      requestProcess();
+    });
   }
 
   get(apiName, options) {
-    async function request() {
-      let res;
-      if (options.beforeSend) {
-        options.beforeSend.call();
-      }
-      try {
-        res = await axios.get(this[cunstructUrl](apiName), {
-          params: BasicsApi[cunstructParams](options.params),
-          timeout: this.timeout,
-        });
-        BasicsApi[success](res.data, options);
-      } catch (err) {
-        BasicsApi[httpError](err);
-      } finally {
-        if (options.complete) {
-          options.complete.call();
-        }
-      }
-    }
-
-    request.call(this);
+    return this[request](apiName, 'get', options);
   }
 
   post(apiName, options) {
-    async function request() {
-      let res;
-      if (options.beforeSend) {
-        options.beforeSend.call();
-      }
-      try {
-        res = await axios.post(this[cunstructUrl](apiName),
-          JSON.stringify(BasicsApi[cunstructParams](options.params)), {
-            timeout: this.timeout,
-            headers: {
-              'Content-Type': 'application/json',
-            },
-          });
-        BasicsApi[success](res.data, options);
-      } catch (err) {
-        BasicsApi[httpError](err);
-      } finally {
-        if (options.complete) {
-          options.complete.call();
-        }
-      }
-    }
-
-    request.call(this);
+    return this[request](apiName, 'post', options);
   }
 }
 

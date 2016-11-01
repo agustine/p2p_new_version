@@ -39,3 +39,15 @@ export const isIPhone = detect(/iphone/i);
 export const isIPod = detect(/ipod/i);
 
 export const isWeChat = detect(/MicroMessenger/i);
+
+export const iosVersion = (function getIosVersion() {
+  var regResult = /(iPhone|iPad|iPod) OS ([\d_]+)/.exec(userAgent);
+  if (!regResult || regResult <= 2) {
+    return 0;
+  }
+  var version = (regResult[2] || '').split('_')[0];
+  if (version) {
+    return parseInt(version);
+  }
+  return 0;
+})();

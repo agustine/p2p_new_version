@@ -11,23 +11,25 @@ Vue.use(VueRouter);
 
 vars.setStore(store);
 
-store.dispatch('initMember');
+function startApp() {
+  const router = new VueRouter({
+    base: __dirname,
+    routes: [{
+      path: '/',
+      component: MainView,
+    }, {
+      path: '/search',
+      component: SearchView,
+    }],
+  });
 
-const router = new VueRouter({
-  base: __dirname,
-  routes: [{
-    path: '/',
-    component: MainView,
-  }, {
-    path: '/search',
-    component: SearchView,
-  }],
-});
+  new Vue({
+    store,
+    router,
+    template: `
+          <router-view class="view"></router-view>
+      `,
+  }).$mount('.app-wrapper');
+}
 
-new Vue({
-  store,
-  router,
-  template: `
-      <router-view class="view"></router-view>
-  `,
-}).$mount('.app-wrapper');
+store.dispatch('initMember').then(startApp);
