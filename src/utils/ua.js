@@ -10,6 +10,18 @@ export function detect(pattern) {
   return (pattern).test(ua);
 }
 
+function getIosVersion() {
+  const regResult = /(iPhone|iPad|iPod) OS ([\d_]+)/.exec(ua);
+  if (!regResult || regResult <= 2) {
+    return 0;
+  }
+  const version = (regResult[2] || '').split('_')[0];
+  if (version) {
+    return window.parseInt(version);
+  }
+  return 0;
+}
+
 export const isChrome = detect(/webkit\W.*(chrome|chromium)\W/i);
 
 export const isFirefox = detect(/mozilla.*\Wfirefox\W/i);
@@ -40,14 +52,4 @@ export const isIPod = detect(/ipod/i);
 
 export const isWeChat = detect(/MicroMessenger/i);
 
-export const iosVersion = (function getIosVersion() {
-  var regResult = /(iPhone|iPad|iPod) OS ([\d_]+)/.exec(userAgent);
-  if (!regResult || regResult <= 2) {
-    return 0;
-  }
-  var version = (regResult[2] || '').split('_')[0];
-  if (version) {
-    return parseInt(version);
-  }
-  return 0;
-})();
+export const iosVersion = getIosVersion();

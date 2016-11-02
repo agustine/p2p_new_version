@@ -18,6 +18,8 @@ const deviceKind = 'Mobile';
 
 const localSession = ls('LOCAL_KEY_SESSION_11');
 
+let promiseRenew = null;
+
 const state = {
   sessionId: '', // 联连的用户token（sessionId）
   version: '', // 联连的版本号
@@ -136,6 +138,9 @@ const actions = {
     commit,
     dispatch,
   }) {
+    if (promiseRenew) {
+      return promiseRenew;
+    }
     let sessionId = vars.getSessionId();
     const requestBody = {
       application,
@@ -148,7 +153,7 @@ const actions = {
         channel,
       },
     };
-    return new Promise((resolve) => {
+    promiseRenew = new Promise((resolve) => {
       async function request() {
         try {
           const res = await memberApi.post('Members/SignedIn', {
@@ -160,34 +165,19 @@ const actions = {
           localSession.set(sessionId);
 
           resolve();
+          promiseRenew = null;
         } catch (err) {
           if (err.errorCode === 412) {
-            dispatch('anonymousSignIn').then(resolve);
+            dispatch('anonymousSignIn').then(() => {
+              resolve();
+              promiseRenew = null;
+            });
           }
         }
       }
       request();
     });
-
-    // return new Promise((resolve) => {
-    //   memberApi.post('Members/SignedIn', {
-    //     params: requestBody,
-    //     callbacks: {
-    //       200: function success(res) {
-    //         sessionId = res.data.sessionId;
-    //         commit(UPDATE_SESSION_ID, sessionId);
-    //
-    //         const storage = {
-    //           sessionId,
-    //         };
-    //         localSession.set(storage);
-    //       },
-    //       412: function unknowSession() {
-    //         dispatch('anonymousSignIn').then(resolve);
-    //       },
-    //     },
-    //   });
-    // });
+    return promiseRenew;
   },
 };
 

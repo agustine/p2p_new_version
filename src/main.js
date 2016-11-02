@@ -4,6 +4,9 @@ import store from './vuex/store';
 import MainView from './views/MainView';
 import SearchView from './views/SearchView';
 import * as vars from './app/vars';
+import {
+  getUserToken,
+} from './utils/bridge';
 
 require('./scss/base.scss');
 
@@ -11,7 +14,7 @@ Vue.use(VueRouter);
 
 vars.setStore(store);
 
-function startApp() {
+async function startApp() {
   const router = new VueRouter({
     base: __dirname,
     routes: [{
@@ -30,6 +33,9 @@ function startApp() {
           <router-view class="view"></router-view>
       `,
   }).$mount('.app-wrapper');
+
+  const newToken = await getUserToken(vars.getSessionId());
+  console.log(newToken);
 }
 
 store.dispatch('initMember').then(startApp);
