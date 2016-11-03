@@ -11,7 +11,7 @@ import {
 const apiBase = configs.API_P2P_URL;
 const timeout = 10000;
 
-function cunstructUrl(action) {
+function constructUrl(action) {
   const sessionId = vars.getSessionId();
   const url = new Url(`${apiBase}${action}`);
   if (sessionId) {
@@ -20,7 +20,7 @@ function cunstructUrl(action) {
   return url.format();
 }
 
-function cunstructParams(params) {
+function constructParams(params) {
   const sessionId = vars.getSessionId();
   const result = params || {};
   if (sessionId) {
@@ -34,9 +34,9 @@ export default function doRequest(apiName, params) {
     async function request() {
       let res;
       // 构造请求的url
-      const url = cunstructUrl(apiName);
+      const url = constructUrl(apiName);
       // 构造参数
-      const requestBody = cunstructParams(params);
+      const requestBody = constructParams(params);
       try {
         // 请求发起
         res = await axios.post(url, requestBody, {

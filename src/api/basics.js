@@ -7,11 +7,11 @@ import {
   AppError,
 } from '../classes';
 
-const cunstructUrl = Symbol('cunstructUrl');
-const cunstructUrlWithSession = Symbol('cunstructUrlWithSession');
+const constructUrl = Symbol('constructUrl');
+const constructUrlWithSession = Symbol('constructUrlWithSession');
 const request = Symbol('request');
 
-function cunstructParams(params) {
+function constructParams(params) {
   const sessionId = vars.getSessionId();
   const result = params || {};
   if (sessionId) {
@@ -29,15 +29,15 @@ class BasicsApi {
     this.timeout = timeout;
   }
 
-  [cunstructUrl](action) {
+  [constructUrl](action) {
     const apiBase = this.apiBase;
     const url = `${apiBase}${action}`;
     return url;
   }
 
-  [cunstructUrlWithSession](action) {
+  [constructUrlWithSession](action) {
     const sessionId = vars.getSessionId();
-    const url = new Url(this[cunstructUrl](action));
+    const url = new Url(this[constructUrl](action));
     if (sessionId) {
       url.addQuery('sessionId', sessionId);
     }
@@ -53,15 +53,15 @@ class BasicsApi {
           if (['get', 'delete'].includes(method.toLowerCase())) {
             res = await axios({
               method,
-              url: thisObj[cunstructUrl](apiName),
-              params: cunstructParams(options.params),
+              url: thisObj[constructUrl](apiName),
+              params: constructParams(options.params),
               timeout: thisObj.timeout,
             });
           } else {
             res = await axios({
               method,
-              url: thisObj[cunstructUrl](apiName),
-              data: JSON.stringify(cunstructParams(options.params)),
+              url: thisObj[constructUrl](apiName),
+              data: JSON.stringify(constructParams(options.params)),
               timeout: thisObj.timeout,
               headers: {
                 'Content-Type': 'application/json',
