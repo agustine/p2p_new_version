@@ -1,6 +1,6 @@
 <template>
 <lly-page class="search-page">
-  <lly-header title="投资广场">
+  <lly-header title="投资广场" :show-back="false">
 
   </lly-header>
   <lly-section>

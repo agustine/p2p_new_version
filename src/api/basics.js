@@ -81,7 +81,7 @@ class BasicsApi {
           // session过期或者失效
           if (code === 402 || code === 401) {
             await vars.getStore().dispatch('renew');
-            request();
+            requestProcess();
             return;
           }
 

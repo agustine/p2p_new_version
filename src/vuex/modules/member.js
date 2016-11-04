@@ -1,6 +1,7 @@
 import {
   memberApi,
 } from '../../api/basics';
+import doRequest from '../../api/main';
 import {
   version,
   channel,
@@ -97,16 +98,6 @@ const actions = {
       }
       request();
     });
-    // return new Promise((resolve) => {
-    //   memberApi.post('Members/SignedIn', {
-    //     params: requestBody,
-    //     callbacks: {
-    //       200: function success(res) {
-    //
-    //       },
-    //     },
-    //   });
-    // });
   },
 
   initMember({
@@ -130,8 +121,18 @@ const actions = {
   reloadUserInfo({
     commit,
   }) {
-    console.log('reload user info');
-    commit(UPDATE_USER_INFO, {});
+    return new Promise((resolve) => {
+      async function request() {
+        try {
+          const res = await doRequest('getMyAccount');
+          commit(UPDATE_USER_INFO, res.data);
+          resolve();
+        } catch (err) {
+          //   reject(err);
+        }
+      }
+      request();
+    });
   },
 
   renew({

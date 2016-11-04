@@ -12,7 +12,7 @@ const generateCallbackName = () => {
   return callbackName;
 };
 
-function praseCallbackArgs(args, resultParse) {
+function parseCallbackArgs(args, resultParse) {
   let result = args.slice();
   if (resultParse) {
     result = resultParse(args);
@@ -27,7 +27,7 @@ if (!isIOS) {
   bridge.callHandler = (handlerName, data, resultParse) => new Promise((resolve) => {
     const callbackName = generateCallbackName();
     window[callbackName] = function callback(...args) {
-      const result = praseCallbackArgs(args, resultParse);
+      const result = parseCallbackArgs(args, resultParse);
       resolve(result);
       window[callbackName] = undefined;
     };
@@ -76,7 +76,7 @@ if (!isIOS) {
       };
       if (responseCallbacks) {
         responseCallbacks[requestId] = function callback(...args) {
-          const result = praseCallbackArgs(args, resultParse);
+          const result = parseCallbackArgs(args, resultParse);
           resolve(result);
           responseCallbacks[requestId] = undefined;
         };
@@ -137,4 +137,60 @@ export function getUserToken(oldToken) {
     token: oldToken,
   };
   return bridge.callHandler('getUserToken', params, resultParse);
+}
+
+export function goBack() {
+  bridge.callHandler('back');
+}
+
+export function popLogin() {
+  const resultParse = (args) => {
+    let result = {
+      token: args[0],
+      intType: args[1],
+    };
+    if (isIOS) {
+      result = args[0];
+    }
+    return result;
+  };
+  return bridge.callHandler('userLogin', {}, resultParse);
+}
+
+export function openPage(url, token, header, footerBar, title) {
+  bridge.callHandler('openPage', {
+    url,
+    token,
+    header,
+    footerBar,
+    title,
+  });
+}
+
+export function doShare(url, pic, title, desp) {
+  bridge.callHandler('doShare', {
+    url,
+    pic,
+    title,
+    desp,
+  });
+}
+
+export function sendTrackInfo(pageCode, moduleId) {
+  bridge.callHandler('sendTrackInfo', {
+    pageCode,
+    moduleId,
+  });
+}
+
+export function getCoords() {
+  const resultParse = args => args[0];
+  return bridge.callHandler('getCoords', {}, resultParse);
+}
+
+export function addToClipBoard(str) {
+  const resultParse = args => args[0];
+  return bridge.callHandler('addToClipBoard', {
+    content: str,
+  }, resultParse);
 }

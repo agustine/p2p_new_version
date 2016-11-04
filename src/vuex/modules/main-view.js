@@ -13,7 +13,7 @@ const mutations = {
 };
 
 const actions = {
-  closeDownloadHint: function closeDownloadHint({
+  closeDownloadHint({
     commit,
   }) {
     commit(CLOSE_DOWNLOAD_HINT);
