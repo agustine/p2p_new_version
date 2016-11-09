@@ -40,3 +40,5 @@ export default function ls(key, config) {
     },
   };
 }
+
+export const localSession = ls('LOCAL_KEY_SESSION_ID');

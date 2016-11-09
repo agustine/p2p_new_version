@@ -11,13 +11,13 @@ import {
   UPDATE_USER_INFO,
   LOGOUT_USER,
 } from '../mutation-types';
-import ls from '../ls';
+import {
+  localSession,
+} from '../ls';
 import * as vars from '../../app/vars';
 
 const application = 'LiCai';
 const deviceKind = 'Mobile';
-
-const localSession = ls('LOCAL_KEY_SESSION_11');
 
 let promiseRenew = null;
 
@@ -179,6 +179,124 @@ const actions = {
       request();
     });
     return promiseRenew;
+  },
+
+  login({
+    commit,
+  }, {
+    mobile,
+    password,
+  }) {
+    const requestBody = {
+      application,
+      sessionId: vars.getSessionId(),
+      kind: 'SignIn',
+      credential: {
+        code: mobile,
+        kind: deviceKind,
+        password,
+      },
+      device: {
+        kind: deviceKind,
+        app: application,
+        appVersion: version,
+        channel,
+      },
+    };
+    return new Promise((resolve) => {
+      async function request() {
+        try {
+          const res = await memberApi.post('Members/SignedIn', {
+            params: requestBody,
+          });
+          const sessionId = res.data.sessionId;
+          commit(UPDATE_SESSION_ID, sessionId);
+          //   console.log('in', sessionId);
+          localSession.set(sessionId);
+
+          resolve();
+        } catch (err) {
+          //   reject(err);
+          // 423 未注册
+        }
+      }
+      request();
+    });
+  },
+
+  register({
+    commit,
+  }, {
+    mobile,
+    password,
+    validate,
+    inviter,
+  }) {
+    const requestBody = {
+      application,
+      sessionId: vars.getSessionId(),
+      kind: 'SignIn',
+      credential: {
+        code: mobile,
+        kind: deviceKind,
+        password,
+      },
+      device: {
+        kind: deviceKind,
+        app: application,
+        appVersion: version,
+        channel,
+      },
+      veriCode: validate,
+      referee: inviter,
+    };
+    return new Promise((resolve) => {
+      async function request() {
+        try {
+          const res = await doRequest('getMyAccount', {
+            params: requestBody,
+          });
+          const sessionId = res.data.sessionId;
+          commit(UPDATE_SESSION_ID, sessionId);
+          //   console.log('in', sessionId);
+          localSession.set(sessionId);
+
+          resolve();
+        } catch (err) {
+          //   reject(err);
+        }
+      }
+      request();
+    });
+  },
+
+  getValidateCode({
+    commit,
+  }, {
+    businessKind,
+    mobile,
+  }) {
+    const requestBody = {
+      application,
+      mobile,
+      businessKind,
+      kind: 'SMS',
+    };
+
+    return new Promise((resolve) => {
+      async function request() {
+        try {
+          await memberApi.post('VeriCodes', {
+            params: requestBody,
+          });
+
+          resolve();
+        } catch (err) {
+          //   reject(err);
+        }
+      }
+      request();
+    });
   },
 };
 

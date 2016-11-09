@@ -2,6 +2,7 @@ import VueRouter from 'vue-router';
 import MainView from '../views/MainView';
 import SearchView from '../views/SearchView';
 import LoginView from '../views/auth/Login';
+import RegisterView from '../views/auth/Register';
 
 export default new VueRouter({
   base: __dirname,
@@ -12,7 +13,10 @@ export default new VueRouter({
     path: '/search',
     component: SearchView,
   }, {
-    path: '/login',
+    path: '/auth/login',
     component: LoginView,
+  }, {
+    path: '/auth/register',
+    component: RegisterView,
   }],
 });
